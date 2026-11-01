@@ -172,11 +172,17 @@ parser plugin names. Names are case insensitive.
 * An element prefixed with `!` is excluded. Exclusions take precedence over inclusions.
 * A parser plugin can only be excluded if its parser is also included, otherwise log2timeline.py will report an error.
 
+Note that shells such as bash and zsh apply history expansion to an
+exclamation mark, also inside double quotes, which results in an error like
+"event not found". Escaping the exclamation mark with a backslash inside
+double quotes does not help either, since bash then passes on the backslash.
+Use single quotes for an expression that contains an exclusion.
+
 For example:
 
 ```bash
-$ log2timeline.py --parsers "linux,!text/bash_history" --storage-file timeline.plaso image.raw
-$ log2timeline.py --parsers "sqlite,!sqlite/chrome_27_history" --storage-file timeline.plaso image.raw
+$ log2timeline.py --parsers 'linux,!text/bash_history' --storage-file timeline.plaso image.raw
+$ log2timeline.py --parsers 'sqlite,!sqlite/chrome_27_history' --storage-file timeline.plaso image.raw
 $ log2timeline.py --parsers "win7,text/syslog" --storage-file timeline.plaso image.raw
 ```
 
