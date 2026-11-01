@@ -95,6 +95,15 @@ class PuTTYSessionsPluginTest(test_lib.RegistryPluginTestCase):
         )
         registry_key.AddSubkey(subkey.name, subkey)
 
+        # Session that only defines a host name.
+        subkey = self._CreateSessionSubkey(
+            "minimal",
+            "2026-10-21 17:45:03.000000",
+            3072,
+            [("HostName", dfwinreg_definitions.REG_SZ, "git.example.com")],
+        )
+        registry_key.AddSubkey(subkey.name, subkey)
+
         return registry_key
 
     def testFilters(self):
@@ -116,7 +125,7 @@ class PuTTYSessionsPluginTest(test_lib.RegistryPluginTestCase):
         number_of_event_data = storage_writer.GetNumberOfAttributeContainers(
             "event_data"
         )
-        self.assertEqual(number_of_event_data, 2)
+        self.assertEqual(number_of_event_data, 3)
 
         number_of_warnings = storage_writer.GetNumberOfAttributeContainers(
             "extraction_warning"
@@ -161,6 +170,23 @@ class PuTTYSessionsPluginTest(test_lib.RegistryPluginTestCase):
             "username": "admin",
         }
         event_data = storage_writer.GetAttributeContainerByIndex("event_data", 1)
+        self.CheckEventData(event_data, expected_event_values)
+        self.assertFalse(getattr(event_data, "_corrupted"))
+
+        expected_event_values = {
+            "data_type": "windows:registry:putty:session",
+            "key_path": (
+                "HKEY_CURRENT_USER\\Software\\SimonTatham\\PuTTY\\Sessions\\minimal"
+            ),
+            "last_written_time": "2026-10-21T17:45:03.0000000+00:00",
+            "port_number": None,
+            "protocol": None,
+            "public_key_file": None,
+            "remote_hostname": "git.example.com",
+            "session_name": "minimal",
+            "username": None,
+        }
+        event_data = storage_writer.GetAttributeContainerByIndex("event_data", 2)
         self.CheckEventData(event_data, expected_event_values)
         self.assertFalse(getattr(event_data, "_corrupted"))
 
